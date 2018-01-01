@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -26,9 +27,10 @@ import com.config.ProjectConfig;
 import com.model.Recipient;
 
 public class SenderService {
+
 	static Supplier<Set<Recipient>> recepientsReader = () -> {
 		return FileService.fileReader.apply(ProjectConfig.SEND_TO_IDS).stream().map(str -> str.split(","))
-				.map(rec -> new Recipient(rec[1], rec[0], rec[2])).collect(Collectors.toSet());
+				.map(rec -> new Recipient(rec[0], rec[1], rec[2])).collect(Collectors.toSet());
 	};
 	final MessageBuilder mb = new MessageBuilder();
 
@@ -65,7 +67,7 @@ public class SenderService {
 	private MimeMessage buildEmail(final Recipient recruiter) {
 		final MimeMessage msg = new MimeMessage(getSession());
 		try {
-			msg.setFrom(new InternetAddress(ProjectConfig.USER_NAME));
+			msg.setFrom(new InternetAddress(System.getProperty(ProjectConfig.USER_NAME)));
 			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recruiter.getEmailId()));
 			msg.setSubject(ProjectConfig.MAIL_SUBJECT + recruiter.getCompany());
 			msg.setSentDate(new Date());
@@ -98,18 +100,19 @@ public class SenderService {
 	static Supplier<Session> sessionSupplier = () ->
 
 	{
+		final Authenticator passwordAuthenticator = new Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(System.getProperty(ProjectConfig.USER_NAME),
+						System.getProperty(ProjectConfig.PASSWORD));
+			}
+		};
 		final Properties props = new Properties();
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
 		props.put("mail.smtp.host", "smtp.gmail.com");
 		props.put("mail.smtp.port", "587");
 
-		Session.getInstance(props, new javax.mail.Authenticator() {
-			@Override
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(ProjectConfig.USER_NAME, ProjectConfig.PASSWORD);
-			}
-		});
-		return Session.getInstance(props);
+		return Session.getInstance(props, passwordAuthenticator);
 	};
 }

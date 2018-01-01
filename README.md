@@ -1,3 +1,0 @@
-# EmailService
-This is the project to send bulk emails:
-More details coming up....

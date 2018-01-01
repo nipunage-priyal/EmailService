@@ -1,13 +1,13 @@
 package com.config;
 
 public class ProjectConfig {
-	public final static String USER_NAME = "";
-	public final static String PASSWORD = "";
+	public final static String USER_NAME = "userName";
+	public final static String PASSWORD = "password";
 
 	public final static String MESSAGE_TEXT_FILE = "./resources/MessageFile.txt";
 
-	public final static String ATTACHING_RESUME = "../resources/--.pdf";
-	public final static String RESUMENAME = "--.pdf";
+	public final static String ATTACHING_RESUME = "./resources/Priyal_Satish_Nipunage.pdf";
+	public final static String RESUMENAME = ".pdf";
 
 	public final static String MAIL_SUBJECT = " Application for new place at ";
 
